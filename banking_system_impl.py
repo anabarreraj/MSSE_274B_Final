@@ -9,12 +9,14 @@ Created on Sun Nov  9 11:57:12 2025
 from banking_system import BankingSystem
 
 class Account:
-    def __init__(self, timestamp: str, account_id: str, beginning_balance = 0):
+    def __init__(self, timestamp: str, account_id: str):
         self._timestamp = timestamp
         self._account_id = account_id
-        self._balance = beginning_balance
+        
+        self._balance = 0
 
     #def get_account_id(self): return self._account_id
+    
     def print_account_details(self):
         print(f"Timestamp: {self._timestamp}")
         print(f"Accound ID: {self._account_id}")
@@ -30,7 +32,7 @@ class BankingSystemImpl(BankingSystem):
         for account in self._accounts_list:
             if account_id == account._account_id:
                 return account
-            return None # if not account found 
+        return None # if not account found 
     
     # helper function for testing only 
     def _all_accounts(self): 
@@ -74,18 +76,13 @@ class BankingSystemImpl(BankingSystem):
         
         source = self._find_account(source_account_id)
         target = self._find_account(target_account_id)
-        
-        #! NoneType error when trying to access target._balance 
 
-        print(f"source balance: {source._balance}")
-        print(f"target balance: {target._balance}")
-        
         #! condition required to prevent "overdraft"?
         
-        print(f"Timestamp: {timestamp} \nStarting balance (source): {source._balance} \nStarting balance (target): {target._balance}")
+        print(f"Timestamp: {timestamp} \nStarting balance (source): {source._balance} \nStarting balance (target): {target._balance}\n")
         source._balance -= amount 
         target._balance += amount 
-        print(f"Timestamp: {timestamp} \nNew account balance (source): {source._balance} \nStarting balance (target): {target._balance}")
+        print(f"Timestamp: {timestamp} \nNew account balance (source): {source._balance} \nNew account balance (target): {target._balance}\n")
         return None
     
     
