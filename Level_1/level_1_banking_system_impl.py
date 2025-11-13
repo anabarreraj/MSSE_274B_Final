@@ -70,19 +70,16 @@ class BankingSystemImpl(BankingSystem):
         
 
     def transfer(self, timestamp: int, source_account_id: str, target_account_id: str, amount: int) -> int | None:
-        if amount <= 0 or source_account_id == target_account_id:
-            print("Error: Please enter a valid amount or source/target account IDs.")
-            return None
         
         source = self._find_account(source_account_id)
         target = self._find_account(target_account_id)
-
-        #! condition required to prevent "overdraft"?
+        
+        if amount <= 0 or amount >= source._balance or  source == target or source not in self._accounts_list or target not in self._accounts_list:
+            print("Error: Please enter a valid amount or source/target account IDs.")
+            return None
         
         print(f"Timestamp: {timestamp} \nStarting balance (source): {source._balance} \nStarting balance (target): {target._balance}\n")
         source._balance -= amount 
         target._balance += amount 
         print(f"Timestamp: {timestamp} \nNew account balance (source): {source._balance} \nNew account balance (target): {target._balance}\n")
         return None
-    
-    
