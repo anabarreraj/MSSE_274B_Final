@@ -42,31 +42,30 @@ class BankingSystemImpl(BankingSystem):
 
     # TODO: implement interface methods here
     def create_account(self, timestamp: int, account_id: str) -> bool:
-        new_account = Account(timestamp, account_id)
+        if self._find_account(account_id) is not None:
+            return False
         
-        # Require unique account_id
-        for a in self._accounts_list: 
-            if account_id == a._account_id: 
-                print(f"Error: Account ID {account_id} already exists!")
-                return False 
-            
+        # Create new account
+        new_account = Account(timestamp, account_id)
         self._accounts_list.append(new_account)
-        print(f"New account successfully created! \nTimestamp: {timestamp} \nAccount ID: {account_id}\n")
-        #print(len(self._accounts_list))
         return True
-
     
     def deposit(self, timestamp: int, account_id: str, amount: int) -> int | None:
-        #! Can allow negative numbers to represent withdraws? 
-        if amount <= 0:
-            print("Error: Please enter a valid amount.")
+        account = self._find_account(account_id)
+        if account is None:
+            print(f"Timestamp: {timestamp} | Error: Account '{account_id}' not found.")
             return None
-        
-        target_account = self._find_account(account_id)
-        print(f"Timestamp: {timestamp} \nStarting account balance: {target_account._balance}")
-        target_account._balance += amount 
-        print(f"Timestamp: {timestamp} \nNew account balance: {target_account._balance}\n")
-        return None
+
+        if amount <= 0:
+            print(f"Timestamp: {timestamp} | Error: Invalid deposit amount: {amount}")
+            return None
+
+        print(f"Timestamp: {timestamp} \nStarting account balance: {account._balance}")
+        account._balance += amount
+        print(f"Timestamp: {timestamp} \nNew account balance: {account._balance}\n")
+
+        return account._balance
+
         
 
     def transfer(self, timestamp: int, source_account_id: str, target_account_id: str, amount: int) -> int | None:
@@ -74,12 +73,29 @@ class BankingSystemImpl(BankingSystem):
         source = self._find_account(source_account_id)
         target = self._find_account(target_account_id)
         
-        if amount <= 0 or amount >= source._balance or  source == target or source not in self._accounts_list or target not in self._accounts_list:
+        #missing accounts 
+        if source is None or target is None:
+            print("Error: Please enter a valid amount or source/target account IDs.")
+            return None
+
+        #cannot transfer to self
+        if source == target:
             print("Error: Please enter a valid amount or source/target account IDs.")
             return None
         
+        #change >= to > so full balance transfers are allowed
+        if amount <= 0 or amount > source._balance:
+            print("Error: Please enter a valid amount or source/target account IDs.")
+            return None
+        
+        #removed list membership checks because source/target already validated by _find_account
+        
         print(f"Timestamp: {timestamp} \nStarting balance (source): {source._balance} \nStarting balance (target): {target._balance}\n")
+        
         source._balance -= amount 
         target._balance += amount 
+        
         print(f"Timestamp: {timestamp} \nNew account balance (source): {source._balance} \nNew account balance (target): {target._balance}\n")
-        return None
+
+        return source._balance
+
